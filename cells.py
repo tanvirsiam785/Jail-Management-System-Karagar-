@@ -85,7 +85,6 @@ def assign_cell():
         if not inmate_id or not cell_id:
             return jsonify({"error": "Inmate and Cell must be selected."}), 400
 
-        # ** FIX: Correctly check capacity and return JSON **
         try:
             cur.execute("""
                 SELECT c.capacity, COUNT(i.id) as current_occupants
@@ -99,7 +98,6 @@ def assign_cell():
             if not cell or cell['current_occupants'] >= cell['capacity']:
                 return jsonify({"error": "Cannot assign inmate. The selected cell is already full."}), 400
 
-            # If not full, proceed with assignment
             cur.execute("UPDATE inmates SET cell_id=%s WHERE id=%s", (cell_id, inmate_id))
             mysql.connection.commit()
             
@@ -110,11 +108,21 @@ def assign_cell():
         finally:
             cur.close()
 
-    # GET: Render page with data
-    cur.execute("SELECT id, name FROM inmates WHERE cell_id IS NULL AND status = 'Active'")
+    # GET: Updated query to fetch all needed inmate fields
+    cur.execute("""
+        SELECT id, name, crime, sentence_duration, admission_date, sentence
+        FROM inmates 
+        WHERE cell_id IS NULL AND status = 'Active'
+    """)
     unassigned_inmates = cur.fetchall()
 
-    cur.execute("SELECT c.id, c.cell_number, c.capacity, COUNT(i.id) as current_occupants FROM cells c LEFT JOIN inmates i ON c.id = i.cell_id AND i.status = 'Active' GROUP BY c.id HAVING c.capacity > COUNT(i.id)")
+    cur.execute("""
+        SELECT c.id, c.cell_number, c.capacity, COUNT(i.id) as current_occupants 
+        FROM cells c 
+        LEFT JOIN inmates i ON c.id = i.cell_id AND i.status = 'Active' 
+        GROUP BY c.id 
+        HAVING c.capacity > COUNT(i.id)
+    """)
     available_cells = cur.fetchall()
     cur.close()
 
