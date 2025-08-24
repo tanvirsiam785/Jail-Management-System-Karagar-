@@ -2,99 +2,740 @@
 
 {% block extra_css %}
 <style>
-    .assignment-board {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        height: 65vh;
-    }
-    .assignment-column {
-        background-color: var(--bs-body-bg);
-        border: 1px solid var(--bs-border-color);
-        border-radius: 0.5rem;
-        padding: 1rem;
+    .assignment-container {
+        min-height: calc(100vh - 120px);
         display: flex;
         flex-direction: column;
     }
-    .column-header {
-        margin-bottom: 1rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid var(--bs-border-color);
+
+    .page-header {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-medium);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
     }
+
+    .page-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+        animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { left: -100%; }
+        100% { left: 100%; }
+    }
+
+    .page-header h1 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        display: inline-flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .assignment-board {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        flex-grow: 1;
+        margin-bottom: 2rem;
+    }
+
+    .assignment-column {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-medium);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        min-height: 500px;
+    }
+
+    .assignment-column::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-green));
+        border-radius: 1.5rem 1.5rem 0 0;
+    }
+
+    .assignment-column:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-large);
+    }
+
+    .column-header {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        text-align: center;
+        position: relative;
+    }
+
+    .column-header h4 {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin: 0;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .column-header i {
+        font-size: 1.5rem;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
     .item-list {
         overflow-y: auto;
         flex-grow: 1;
+        padding-right: 0.5rem;
+        margin-right: -0.5rem;
     }
+
     .item-card {
-        background-color: #161b22;
-        border: 2px solid #30363d;
+        background: var(--secondary-bg);
+        border: 2px solid var(--border-color);
+        border-radius: 1rem;
         cursor: pointer;
-        transition: all 0.2s ease-in-out;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-bottom: 1rem;
+        position: relative;
+        overflow: hidden;
     }
+
+    .item-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .item-card:hover::before {
+        left: 100%;
+    }
+
     .item-card:hover {
-        background-color: #30363d;
-        border-color: #58a6ff;
+        background: var(--accent-bg);
+        border-color: var(--accent-blue);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
     }
+
     .item-card.selected {
-        border-color: #28a745;
-        box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
-        transform: scale(1.02);
+        border: 3px solid var(--accent-green);
+        background: var(--accent-bg);
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        transform: translateY(-3px);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        position: relative;
+        z-index: 2;
+    }
+
+    .inmate-card .card-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 0;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .inmate-card .card-title::before {
+        content: '👤';
+        font-size: 1.2rem;
+    }
+
+    .cell-card .card-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin: 0;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .cell-card .card-title::before {
+        content: '🏠';
+        font-size: 1.2rem;
+    }
+
+    .occupancy-badge {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .assignment-actions {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: var(--shadow-medium);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .assignment-actions::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent-green), var(--accent-blue), var(--accent-purple));
+        border-radius: 1.5rem 1.5rem 0 0;
+    }
+
+    .assign-btn {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        border: none;
+        border-radius: 1rem;
+        padding: 1rem 3rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        position: relative;
+        overflow: hidden;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .assign-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.6s;
+    }
+
+    .assign-btn:hover::before {
+        left: 100%;
+    }
+
+    .assign-btn:hover {
+        background: linear-gradient(135deg, #059669, var(--accent-green));
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
+    }
+
+    .assign-btn:disabled {
+        background: var(--accent-bg);
+        color: var(--text-secondary);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .assign-btn:disabled::before {
+        display: none;
+    }
+
+    .selection-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: var(--accent-bg);
+        border-radius: 1rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .indicator-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        background: var(--secondary-bg);
+        border: 1px solid var(--border-color);
+        transition: all 0.3s ease;
+    }
+
+    .indicator-item.active {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        border-color: var(--accent-green);
+        color: white;
+    }
+
+    .indicator-icon {
+        font-size: 1.2rem;
+    }
+
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 300px;
+        color: var(--text-secondary);
+        text-align: center;
+        padding: 2rem;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    .empty-state h5 {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        margin: 0;
+        opacity: 0.7;
+    }
+
+    /* Background Animation */
+    .assignment-container::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100"><rect x="10" y="10" width="80" height="80" fill="none" stroke="rgba(59,130,246,0.1)" stroke-width="2"/><rect x="20" y="20" width="60" height="60" fill="none" stroke="rgba(59,130,246,0.08)" stroke-width="1"/><circle cx="50" cy="30" r="3" fill="rgba(16,185,129,0.2)"/><circle cx="70" cy="50" r="2" fill="rgba(139,92,246,0.2)"/></svg>') repeat,
+            url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120"><rect x="15" y="15" width="90" height="90" fill="none" stroke="rgba(16,185,129,0.08)" stroke-width="1.5"/><rect x="25" y="25" width="70" height="70" fill="none" stroke="rgba(139,92,246,0.06)" stroke-width="1"/><circle cx="60" cy="40" r="2.5" fill="rgba(59,130,246,0.15)"/></svg>') repeat;
+        background-size: 150px 150px, 200px 200px;
+        background-position: 0 0, 75px 75px;
+        animation: float-cells 20s linear infinite, float-cells-2 25s linear infinite reverse;
+        pointer-events: none;
+        z-index: -1;
+        opacity: 0.6;
+    }
+
+    @keyframes float-cells {
+        0% { transform: translateX(0) translateY(0); }
+        100% { transform: translateX(-150px) translateY(-150px); }
+    }
+
+    @keyframes float-cells-2 {
+        0% { transform: translateX(0) translateY(0); }
+        100% { transform: translateX(200px) translateY(-200px); }
+    }
+
+    /* Inmate Details Modal */
+    .inmate-details-modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.8);
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--border-color);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        box-shadow: var(--shadow-large);
+        z-index: 1060;
+        min-width: 400px;
+        max-width: 500px;
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        pointer-events: none;
+    }
+
+    .inmate-details-modal.show {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+        pointer-events: all;
+    }
+
+    .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1059;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .modal-overlay.show {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .modal-header-custom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-title-custom {
+        font-family: 'JetBrains Mono', monospace;
+        font-weight: 600;
+        font-size: 1.25rem;
+        color: var(--text-primary);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-close-btn {
+        background: var(--accent-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        border-radius: 50%;
+        width: 35px;
+        height: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .modal-close-btn:hover {
+        background: var(--accent-red);
+        border-color: var(--accent-red);
+        color: white;
+        transform: scale(1.1);
+    }
+
+    .inmate-info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-item {
+        background: var(--secondary-bg);
+        padding: 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.25rem;
+        font-weight: 500;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+
+    .inmate-avatar {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+        margin: 0 auto 1rem;
+        border: 3px solid var(--border-color);
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+        .assignment-board {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+        }
+
+        .assignment-column {
+            padding: 1.5rem;
+        }
+
+        .assignment-actions {
+            padding: 1.5rem;
+        }
+
+        .assign-btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+
+        .selection-indicator {
+            flex-direction: column;
+            gap: 1rem;
+        }
+    }
+
+    /* Loading Animation */
+    .loading-spinner {
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 0.8s linear infinite;
+        margin-right: 0.5rem;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Enhanced Scrollbar */
+    .item-list::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .item-list::-webkit-scrollbar-track {
+        background: var(--accent-bg);
+        border-radius: 3px;
+    }
+
+    .item-list::-webkit-scrollbar-thumb {
+        background: var(--accent-blue);
+        border-radius: 3px;
+        transition: background 0.3s ease;
+    }
+
+    .item-list::-webkit-scrollbar-thumb:hover {
+        background: var(--accent-purple);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">Assign Inmate to Cell</h1>
-</div>
+<div class="assignment-container">
+    <!-- Enhanced Page Header -->
+    <div class="page-header">
+        <h1>
+            <i class="fas fa-user-plus"></i>
+            Assign Inmate to Cell
+        </h1>
+        <p class="text-muted mt-2 mb-0">Select an inmate and available cell to create an assignment</p>
+    </div>
 
-<div class="assignment-board">
-    <!-- Inmates Column -->
-    <div class="assignment-column">
-        <div class="column-header text-center">
-            <h4 class="mb-0"><i class="fas fa-user-lock me-2"></i>Unassigned Inmates</h4>
+    <!-- Selection Indicators -->
+    <div class="selection-indicator">
+        <div class="indicator-item" id="inmateIndicator">
+            <i class="fas fa-user-lock indicator-icon"></i>
+            <span id="selectedInmateName">No Inmate Selected</span>
         </div>
-        <div class="item-list">
-            {% for inmate in unassigned_inmates %}
-                <div class="card item-card mb-2" data-type="inmate" data-id="{{ inmate.id }}">
-                    <div class="card-body p-3">
-                        <h6 class="card-title mb-0">{{ inmate.name }}</h6>
-                    </div>
-                </div>
-            {% else %}
-                <p class="text-center text-muted mt-3">No unassigned inmates available.</p>
-            {% endfor %}
+        <div class="d-flex align-items-center">
+            <i class="fas fa-arrow-right text-muted"></i>
+        </div>
+        <div class="indicator-item" id="cellIndicator">
+            <i class="fas fa-th-large indicator-icon"></i>
+            <span id="selectedCellName">No Cell Selected</span>
         </div>
     </div>
 
-    <!-- Cells Column -->
-    <div class="assignment-column">
-        <div class="column-header text-center">
-            <h4 class="mb-0"><i class="fas fa-th-large me-2"></i>Available Cells</h4>
-        </div>
-        <div class="item-list">
-            {% for cell in available_cells %}
-                <div class="card item-card mb-2" data-type="cell" data-id="{{ cell.id }}">
-                    <div class="card-body p-3 d-flex justify-content-between align-items-center">
-                        <h6 class="card-title mb-0">Cell {{ cell.cell_number }}</h6>
-                        <span class="badge bg-secondary">{{ cell.current_occupants }} / {{ cell.capacity }} Occupied</span>
+    <!-- Assignment Board -->
+    <div class="assignment-board">
+        <!-- Inmates Column -->
+        <div class="assignment-column">
+            <div class="column-header">
+                <h4>
+                    <i class="fas fa-user-lock"></i>
+                    Unassigned Inmates
+                </h4>
+            </div>
+            <div class="item-list">
+                {% for inmate in unassigned_inmates %}
+                    <div class="card item-card inmate-card" data-type="inmate" data-id="{{ inmate.id }}" data-name="{{ inmate.name }}" 
+                         data-crime="{{ inmate.crime or 'N/A' }}" 
+                         data-sentence="{{ inmate.sentence_duration or 'N/A' }}" 
+                         data-admission="{{ inmate.admission_date.strftime('%Y-%m-%d') if inmate.admission_date else 'N/A' }}">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <h6 class="card-title">{{ inmate.name }}</h6>
+                            <div class="d-flex align-items-center text-muted">
+                                <i class="fas fa-id-badge me-1"></i>
+                                <small>#{{ inmate.id }}</small>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            {% else %}
-                <p class="text-center text-muted mt-3">No available cells.</p>
-            {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-user-slash"></i>
+                        <h5>No Unassigned Inmates</h5>
+                        <p>All inmates are currently assigned to cells</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Cells Column -->
+        <div class="assignment-column">
+            <div class="column-header">
+                <h4>
+                    <i class="fas fa-th-large"></i>
+                    Available Cells
+                </h4>
+            </div>
+            <div class="item-list">
+                {% for cell in available_cells %}
+                    <div class="card item-card cell-card" data-type="cell" data-id="{{ cell.id }}" data-name="Cell {{ cell.cell_number }}">
+                        <div class="card-body d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Cell {{ cell.cell_number }}</h6>
+                                <div class="d-flex align-items-center text-muted mt-1">
+                                    <i class="fas fa-door-open me-1"></i>
+                                    <small>Block {{ cell.block or 'A' }}</small>
+                                </div>
+                            </div>
+                            <div class="occupancy-badge">
+                                <i class="fas fa-users"></i>
+                                {{ cell.current_occupancy }}/{{ cell.capacity }}
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-home"></i>
+                        <h5>No Available Cells</h5>
+                        <p>All cells are currently at full capacity</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignment Actions -->
+    <div class="assignment-actions">
+        <form id="assignCellForm" class="d-inline-block">
+            <input type="hidden" name="inmate_id" id="selected_inmate_id">
+            <input type="hidden" name="cell_id" id="selected_cell_id">
+            <button type="submit" id="assignBtn" class="btn assign-btn" disabled>
+                <i class="fas fa-link me-2"></i>
+                <span id="btnText">Assign Selected Inmate to Cell</span>
+            </button>
+        </form>
+        <div class="mt-3">
+            <small class="text-muted">
+                <i class="fas fa-info-circle me-1"></i>
+                Select both an inmate and a cell to enable assignment
+            </small>
         </div>
     </div>
 </div>
 
-<div class="mt-4 text-center">
-    <form id="assignCellForm" class="d-inline-block">
-        <input type="hidden" name="inmate_id" id="selected_inmate_id">
-        <input type="hidden" name="cell_id" id="selected_cell_id">
-        <button type="submit" id="assignBtn" class="btn btn-primary btn-lg" disabled>
-            Assign Selected Inmate to Selected Cell
+<!-- Inmate Details Modal -->
+<div class="modal-overlay" id="modalOverlay"></div>
+<div class="inmate-details-modal" id="inmateDetailsModal">
+    <div class="modal-header-custom">
+        <h5 class="modal-title-custom">
+            <i class="fas fa-user-circle"></i>
+            Inmate Details
+        </h5>
+        <button class="modal-close-btn" id="closeModalBtn">
+            <i class="fas fa-times"></i>
         </button>
-    </form>
+    </div>
+    
+    <div class="text-center">
+        <div class="inmate-avatar" id="inmateAvatar">
+            <i class="fas fa-user"></i>
+        </div>
+    </div>
+    
+    <div class="inmate-info-grid">
+        <div class="info-item">
+            <div class="info-label">Full Name</div>
+            <div class="info-value" id="modalInmateName">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Inmate ID</div>
+            <div class="info-value" id="modalInmateId">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Crime Type</div>
+            <div class="info-value" id="modalInmateCrime">-</div>
+        </div>
+        <div class="info-item">
+            <div class="info-label">Sentence Duration</div>
+            <div class="info-value" id="modalInmateSentence">-</div>
+        </div>
+        <div class="info-item" style="grid-column: span 2;">
+            <div class="info-label">Admission Date</div>
+            <div class="info-value" id="modalInmateAdmission">-</div>
+        </div>
+    </div>
+    
+    <div class="text-center mt-3">
+        <button class="btn btn-primary" id="confirmSelectionBtn">
+            <i class="fas fa-check me-2"></i>
+            Confirm Selection
+        </button>
+    </div>
 </div>
 {% endblock %}
 
@@ -103,57 +744,302 @@
 document.addEventListener('DOMContentLoaded', function() {
     let selectedInmateId = null;
     let selectedCellId = null;
+    let selectedInmateName = null;
+    let selectedCellName = null;
 
     const assignBtn = document.getElementById('assignBtn');
+    const btnText = document.getElementById('btnText');
     const inmateCards = document.querySelectorAll('.item-card[data-type="inmate"]');
     const cellCards = document.querySelectorAll('.item-card[data-type="cell"]');
+    const inmateIndicator = document.getElementById('inmateIndicator');
+    const cellIndicator = document.getElementById('cellIndicator');
+    const selectedInmateNameSpan = document.getElementById('selectedInmateName');
+    const selectedCellNameSpan = document.getElementById('selectedCellName');
+    
+    // Modal elements
+    const inmateDetailsModal = document.getElementById('inmateDetailsModal');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const confirmSelectionBtn = document.getElementById('confirmSelectionBtn');
+    
+    let pendingInmateData = null;
+
+    function updateSelectionIndicators() {
+        // Update inmate indicator
+        if (selectedInmateName) {
+            selectedInmateNameSpan.textContent = selectedInmateName;
+            inmateIndicator.classList.add('active');
+        } else {
+            selectedInmateNameSpan.textContent = 'No Inmate Selected';
+            inmateIndicator.classList.remove('active');
+        }
+
+        // Update cell indicator
+        if (selectedCellName) {
+            selectedCellNameSpan.textContent = selectedCellName;
+            cellIndicator.classList.add('active');
+        } else {
+            selectedCellNameSpan.textContent = 'No Cell Selected';
+            cellIndicator.classList.remove('active');
+        }
+    }
 
     function checkSelections() {
         if (selectedInmateId && selectedCellId) {
             assignBtn.disabled = false;
+            assignBtn.classList.remove('btn-secondary');
+            assignBtn.classList.add('btn-success');
+            btnText.innerHTML = '<i class="fas fa-link me-2"></i>Assign Selected Inmate to Cell';
         } else {
             assignBtn.disabled = true;
+            assignBtn.classList.remove('btn-success');
+            assignBtn.classList.add('btn-secondary');
+            btnText.innerHTML = '<i class="fas fa-link me-2"></i>Select Inmate & Cell First';
         }
     }
 
+    // Modal functions
+    function showInmateDetails(inmateData) {
+        // Populate modal with inmate data
+        document.getElementById('modalInmateName').textContent = inmateData.name;
+        document.getElementById('modalInmateId').textContent = '#' + inmateData.id;
+        document.getElementById('modalInmateCrime').textContent = inmateData.crime;
+        document.getElementById('modalInmateSentence').textContent = inmateData.sentence;
+        document.getElementById('modalInmateAdmission').textContent = inmateData.admission;
+        
+        // Generate avatar initials
+        const initials = inmateData.name.split(' ').map(n => n[0]).join('').substring(0, 2);
+        document.getElementById('inmateAvatar').innerHTML = initials;
+        
+        // Show modal
+        modalOverlay.classList.add('show');
+        inmateDetailsModal.classList.add('show');
+        
+        // Store pending data
+        pendingInmateData = inmateData;
+    }
+    
+    function hideInmateDetails() {
+        modalOverlay.classList.remove('show');
+        inmateDetailsModal.classList.remove('show');
+        pendingInmateData = null;
+    }
+    
+    function confirmInmateSelection() {
+        if (pendingInmateData) {
+            // Remove selection from all cards
+            inmateCards.forEach(c => c.classList.remove('selected'));
+            
+            // Find and select the card
+            const selectedCard = document.querySelector(`[data-id="${pendingInmateData.id}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('selected');
+            }
+            
+            // Update selection data
+            selectedInmateId = pendingInmateData.id;
+            selectedInmateName = pendingInmateData.name;
+            document.getElementById('selected_inmate_id').value = selectedInmateId;
+            
+            // Update indicators and check selections
+            updateSelectionIndicators();
+            checkSelections();
+            
+            // Show success toast (if you have a toast function)
+            if (typeof showToast === 'function') {
+                showToast(`Selected inmate: ${selectedInmateName}`, 'success', 3000);
+            }
+            
+            // Hide modal
+            hideInmateDetails();
+        }
+    }
+
+    // Enhanced inmate card selection - now shows details modal
     inmateCards.forEach(card => {
         card.addEventListener('click', () => {
-            inmateCards.forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            selectedInmateId = card.dataset.id;
-            document.getElementById('selected_inmate_id').value = selectedInmateId;
-            checkSelections();
+            const inmateData = {
+                id: card.dataset.id,
+                name: card.dataset.name,
+                crime: card.dataset.crime,
+                sentence: card.dataset.sentence,
+                admission: card.dataset.admission
+            };
+            
+            showInmateDetails(inmateData);
+        });
+
+        // Add hover effect
+        card.addEventListener('mouseenter', () => {
+            if (!card.classList.contains('selected')) {
+                card.style.transform = 'translateY(-3px) scale(1.02)';
+            }
+        });
+
+        card.addEventListener('mouseleave', () => {
+            if (!card.classList.contains('selected')) {
+                card.style.transform = '';
+            }
         });
     });
 
+    // Modal event listeners
+    closeModalBtn.addEventListener('click', hideInmateDetails);
+    modalOverlay.addEventListener('click', hideInmateDetails);
+    confirmSelectionBtn.addEventListener('click', confirmInmateSelection);
+    
+    // Enhanced cell card selection
     cellCards.forEach(card => {
         card.addEventListener('click', () => {
+            // Remove selection from all cards
             cellCards.forEach(c => c.classList.remove('selected'));
+            
+            // Add selection to clicked card
             card.classList.add('selected');
+            
+            // Update selection data
             selectedCellId = card.dataset.id;
+            selectedCellName = card.dataset.name;
             document.getElementById('selected_cell_id').value = selectedCellId;
+            
+            // Update indicators and check selections
+            updateSelectionIndicators();
             checkSelections();
+            
+            // Add feedback animation
+            card.style.transform = 'translateY(-5px) scale(1.05)';
+            setTimeout(() => {
+                card.style.transform = '';
+            }, 200);
+            
+            // Show success toast (if you have a toast function)
+            if (typeof showToast === 'function') {
+                showToast(`Selected cell: ${selectedCellName}`, 'success', 3000);
+            }
+        });
+
+        // Add hover effect
+        card.addEventListener('mouseenter', () => {
+            if (!card.classList.contains('selected')) {
+                card.style.transform = 'translateY(-3px) scale(1.02)';
+            }
+        });
+
+        card.addEventListener('mouseleave', () => {
+            if (!card.classList.contains('selected')) {
+                card.style.transform = '';
+            }
         });
     });
 
+    // Enhanced form submission
     document.getElementById('assignCellForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
-        fetch('/assign_cell', { method: 'POST', body: new FormData(this) })
-            .then(res => res.json())
-            .then(data => {
-                if (data.message) {
-                    showToast(data.message, 'success');
-                    setTimeout(() => location.reload(), 1500);
+        // Prevent double submission
+        if (assignBtn.disabled) return;
+        
+        // Show loading state
+        assignBtn.disabled = true;
+        btnText.innerHTML = '<span class="loading-spinner"></span>Processing Assignment...';
+        
+        // Add loading class for additional styling
+        assignBtn.classList.add('loading');
+        
+        fetch('/assign_cell', { 
+            method: 'POST', 
+            body: new FormData(this)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.message) {
+                // Show success message
+                if (typeof showToast === 'function') {
+                    showToast(data.message, 'success', 4000);
                 } else {
-                    showToast(data.error || 'Failed to assign inmate.', 'danger');
+                    alert(data.message);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('An unexpected error occurred.', 'danger');
-            });
+                
+                // Add success animation
+                assignBtn.style.background = 'linear-gradient(135deg, var(--accent-green), #059669)';
+                btnText.innerHTML = '<i class="fas fa-check me-2"></i>Assignment Successful!';
+                
+                // Redirect after delay for better UX
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+            } else {
+                throw new Error(data.error || 'Failed to assign inmate.');
+            }
+        })
+        .catch(error => {
+            console.error('Assignment Error:', error);
+            if (typeof showToast === 'function') {
+                showToast(error.message || 'An unexpected error occurred.', 'danger', 5000);
+            } else {
+                alert(error.message || 'An unexpected error occurred.');
+            }
+            
+            // Reset button state
+            assignBtn.disabled = false;
+            assignBtn.classList.remove('loading');
+            btnText.innerHTML = '<i class="fas fa-link me-2"></i>Try Again';
+        });
     });
+
+    // Initialize indicators
+    updateSelectionIndicators();
+    checkSelections();
+
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Enter key to submit if both selections are made
+        if (e.key === 'Enter' && selectedInmateId && selectedCellId && !assignBtn.disabled) {
+            document.getElementById('assignCellForm').dispatchEvent(new Event('submit'));
+        }
+        
+        // Escape key to clear selections or close modal
+        if (e.key === 'Escape') {
+            // Close modal if open
+            if (inmateDetailsModal.classList.contains('show')) {
+                hideInmateDetails();
+                return;
+            }
+            
+            // Clear all selections
+            inmateCards.forEach(c => c.classList.remove('selected'));
+            cellCards.forEach(c => c.classList.remove('selected'));
+            
+            selectedInmateId = null;
+            selectedCellId = null;
+            selectedInmateName = null;
+            selectedCellName = null;
+            
+            document.getElementById('selected_inmate_id').value = '';
+            document.getElementById('selected_cell_id').value = '';
+            
+            updateSelectionIndicators();
+            checkSelections();
+            
+            if (typeof showToast === 'function') {
+                showToast('Selections cleared', 'info', 2000);
+            }
+        }
+    });
+
+    // Auto-scroll to selected items
+    function scrollToSelected() {
+        const selectedInmate = document.querySelector('.inmate-card.selected');
+        const selectedCell = document.querySelector('.cell-card.selected');
+        
+        if (selectedInmate) {
+            selectedInmate.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        if (selectedCell) {
+            selectedCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
 });
 </script>
 {% endblock %}
