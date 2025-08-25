@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Alerts Management</h1>
+</div>
+
+<div class="row">
+    {% if session.role == 'admin' %}
+    <!-- Create Alert Form -->
+    <div class="col-md-5">
+        <div class="card bg-dark border-secondary mb-3">
+            <div class="card-header">
+                <h5 class="card-title"><i class="fas fa-plus-circle me-2"></i>Create New Alert</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('alerts.create_alert') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="inmate_id" class="form-label">Inmate ID</label>
+                        <input type="number" class="form-control" id="inmate_id" name="inmate_id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Alert Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="alert_date" class="form-label">Alert Date</label>
+                        <input type="date" class="form-control" id="alert_date" name="alert_date">
+                        <small class="text-muted">Leave empty for today</small>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Create Alert</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Alerts List -->
+    <div class="{% if session.role == 'admin' %}col-md-7{% else %}col-md-12{% endif %}">
+        <div class="card bg-dark border-secondary">
+            <div class="card-header">
+                <h5 class="card-title"><i class="fas fa-bell me-2"></i>Alerts History</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for alert in alerts %}
+                <div class="list-group-item list-group-item-dark d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="mb-1">{{ alert.message }}</p>
+                        <small class="text-muted">Inmate: {{ alert.inmate_name or 'N/A' }} - {{ alert.alert_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                    </div>
+                    {% if session.role == 'admin' %}
+                    <form method="POST" action="{{ url_for('alerts.delete_alert', id=alert.id) }}">
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+                {% else %}
+                <div class="list-group-item list-group-item-dark text-center text-muted">No alerts found.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
